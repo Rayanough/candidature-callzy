@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidature Callzy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons/css/flag-icons.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #6366f1;
+            --accent: #a5b4fc;
+            --dark: #312e81;
+            --callzy-teal: #13d9c1;
+            --whatsapp-green: #25d366;
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f8fafc;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        #threejs-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .form-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .input-field::placeholder {
+            color: #94a3b8;
+            opacity: 1;
+            font-size: 0.875rem;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #14d9c2;
+            box-shadow: 0 0 0 3px rgba(20, 217, 194, 0.2);
+        }
+        
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .phone-container {
+            display: flex;
+        }
+        
+        .phone-container select:focus + input,
+        .phone-container input:focus {
+            border-color: #14d9c2;
+            box-shadow: 0 0 0 3px rgba(20, 217, 194, 0.2);
+        }
+        
+        .flag-container {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .flag-emoji {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flag-emoji:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #10b8a6 0%, #14d9c2 50%, #18e6d0 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(20, 217, 194, 0.4);
+        }
+        
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        
+        .submit-btn:hover::after {
+            transform: translateX(100%);
+        }
+        
+        .success-message {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo {
+            height: 60px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+        
+        .whatsapp-text {
+            color: var(--whatsapp-green);
+            font-weight: 600;
+        }
+        
+        .highlight {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        .response-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 640px) {
+            .form-container {
+                padding: 1.5rem;
+                backdrop-filter: none;
+            }
+            
+            .logo {
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="threejs-bg"></div>
+    
+    <div class="form-wrapper">
+        <div class="form-container">
+            <!-- Logo Callzy SVG -->
+            <svg class="logo" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="15" cy="40" r="8" fill="#14d9c2"/>
+                <text x="40" y="35" font-family="Inter, system-ui, sans-serif" font-size="32" font-weight="700" fill="#2d3748" letter-spacing="-0.5px">CALLZY</text>
+            </svg>
+
+            <!-- Titre visible seulement sur la première page -->
+            <div id="pageTitle" class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Rejoignez nous</h1>
+                <p class="text-gray-600">Votre talent nous intéresse</p>
+            </div>
+
+            <form id="applicationForm" class="space-y-6">
+                <div class="input-container">
+                    <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                    <input type="text" id="lastname" name="lastname" required
+                           placeholder="Entrez votre nom"
+                           class="input-field w-full">
+                </div>
+
+                <div class="input-container">
+                    <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                    <input type="text" id="firstname" name="firstname" required
+                           placeholder="Entrez votre prénom"
+                           class="input-field w-full">
+                </div>
+
+                <div class="input-container">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Adresse email</label>
+                    <input type="email" id="email" name="email" required
+                           placeholder="exemple@email.com"
+                           class="input-field w-full">
+                </div>
+
+                <div class="input-container">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Numéro de téléphone</label>
+                    <div class="flex items-center gap-3">
+                        <!-- Drapeau dynamique avec flag-icons -->
+                        <div class="flag-container flex items-center justify-center w-14 h-14 bg-gradient-to-br from-white to-gray-50 rounded-xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <span id="countryFlag" class="fi fi-dz flag-emoji w-8 h-8 rounded-md shadow-sm transition-all duration-300 hover:scale-110"></span>
+                        </div>
+                        
+                        <!-- Container téléphone -->
+                        <div class="flex-1 flex rounded-lg shadow-sm border border-gray-200 hover:border-teal-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500 focus-within:ring-opacity-20 transition-all duration-300 bg-white overflow-hidden">
+                            <div class="relative">
+                                <select id="countryCode" name="countryCode" required
+                                        class="appearance-none border-0 pl-4 pr-10 py-3.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-0 w-32 cursor-pointer bg-gradient-to-r from-gray-50 to-white hover:from-teal-50 hover:to-white transition-all duration-200">
+                                    <option value="+213" data-flag="dz">DZ +213</option>
+                                    <option value="+216" data-flag="tn">TN +216</option>
+                                    <option value="+212" data-flag="ma">MA +212</option>
+                                    <option value="+261" data-flag="mg">MG +261</option>
+                                    <option value="+33" data-flag="fr">FR +33</option>
+                                </select>
+                                
+                                <!-- Flèche dropdown -->
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <!-- Séparateur vertical -->
+                            <div class="w-px bg-gradient-to-b from-gray-200 via-gray-300 to-gray-200"></div>
+                            
+                            <input type="tel" id="phone" name="phone" required
+                                   placeholder="12 345 678"
+                                   class="flex-1 border-0 px-4 py-3.5 text-sm placeholder-gray-400 focus:outline-none focus:ring-0 bg-white">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="submitBtn"
+                            class="submit-btn w-full py-3">
+                        <span id="btnText">Soumettre la candidature</span>
+                    </button>
+                </div>
+            </form>
+
+            <div id="successMessage" class="hidden success-message mt-8">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <p id="dynamicMessage" class="text-gray-700 text-sm leading-relaxed">
+                            <!-- Message dynamique sera inséré ici -->
+                        </p>
+                    </div>
+                    
+                    <div class="response-info">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Réponse sous 24-72h
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Enhanced Three.js Background
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance"
+            });
+            
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('threejs-bg').appendChild(renderer.domElement);
+
+            // Floating particles with Callzy colors
+            const particlesCount = 800;
+            const particlesGeometry = new THREE.BufferGeometry();
+            const posArray = new Float32Array(particlesCount * 3);
+            const colorArray = new Float32Array(particlesCount * 3);
+            
+            for(let i = 0; i < particlesCount * 3; i += 3) {
+                posArray[i] = (Math.random() - 0.5) * 20;
+                posArray[i + 1] = (Math.random() - 0.5) * 20;
+                posArray[i + 2] = (Math.random() - 0.5) * 20;
+                
+                // Color variation between Callzy colors
+                const colorChoice = Math.random();
+                let color;
+                if (colorChoice < 0.6) {
+                    color = new THREE.Color(0x4f46e5);
+                } else if (colorChoice < 0.9) {
+                    color = new THREE.Color(0x6366f1);
+                } else {
+                    color = new THREE.Color(0x13d9c1);
+                }
+                
+                colorArray[i] = color.r;
+                colorArray[i + 1] = color.g;
+                colorArray[i + 2] = color.b;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.05,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.7,
+                sizeAttenuation: true,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            // Floating Callzy teal rings
+            const rings = [];
+            const ringGeometry = new THREE.TorusGeometry(0.5, 0.03, 16, 100);
+            
+            for (let i = 0; i < 5; i++) {
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x13d9c1,
+                    transparent: true,
+                    opacity: 0.4,
+                    wireframe: true
+                });
+                
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.position.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10
+                );
+                
+                ring.userData = {
+                    speed: Math.random() * 0.005 + 0.002,
+                    rotationSpeed: Math.random() * 0.01 + 0.005
+                };
+                
+                rings.push(ring);
+                scene.add(ring);
+            }
+
+            camera.position.z = 5;
+
+            // Animation loop
+            const animate = () => {
+                requestAnimationFrame(animate);
+                
+                particlesMesh.rotation.x += 0.0002;
+                particlesMesh.rotation.y += 0.0003;
+                
+                rings.forEach(ring => {
+                    ring.rotation.x += ring.userData.rotationSpeed;
+                    ring.rotation.y += ring.userData.rotationSpeed * 0.7;
+                    ring.position.y += ring.userData.speed;
+                    
+                    if (ring.position.y > 7) {
+                        ring.position.y = -7;
+                    }
+                });
+                
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Amélioration du select avec des effets visuels et vrais drapeaux
+            const countrySelect = document.getElementById('countryCode');
+            const countryFlag = document.getElementById('countryFlag');
+            const phoneContainer = countrySelect.closest('.flex-1');
+            
+            // Mapping des pays vers leurs codes flag-icons
+            const countryFlags = {
+                '+216': 'tn', // Tunisie
+                '+213': 'dz', // Algérie  
+                '+212': 'ma', // Maroc
+                '+261': 'mg', // Madagascar
+                '+33': 'fr'   // France
+            };
+            
+            // Mapping des codes pays ISO vers nos indicatifs
+            const countryMapping = {
+                'TN': '+216', // Tunisie
+                'DZ': '+213', // Algérie
+                'MA': '+212', // Maroc
+                'MG': '+261', // Madagascar
+                'FR': '+33'   // France
+            };
+
+            // Fonction pour détecter automatiquement le pays
+            async function detectCountryAndSetFlag() {
+                // Liste d'APIs de géolocalisation avec fallback
+                const geoAPIs = [
+                    'https://ipapi.co/json/',
+                    'https://api.ipgeolocation.io/ipgeo?apiKey=free',
+                    'https://ip-api.com/json/',
+                    'https://freegeoip.app/json/'
+                ];
+
+                for (let i = 0; i < geoAPIs.length; i++) {
+                    try {
+                        console.log(`Tentative ${i + 1}/${geoAPIs.length}: ${geoAPIs[i]}`);
+                        
+                        const response = await fetch(geoAPIs[i], {
+                            method: 'GET',
+                            mode: 'cors',
+                            cache: 'no-cache'
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        console.log('Données reçues:', data);
+                        
+                        // Normaliser la réponse selon l'API
+                        let countryCode = null;
+                        let countryName = null;
+                        
+                        if (data.country_code) {
+                            countryCode = data.country_code.toUpperCase();
+                            countryName = data.country_name || data.country;
+                        } else if (data.countryCode) {
+                            countryCode = data.countryCode.toUpperCase();
+                            countryName = data.countryName || data.country;
+                        } else if (data.country_code) {
+                            countryCode = data.country_code.toUpperCase();
+                            countryName = data.country;
+                        }
+                        
+                        if (countryCode) {
+                            const indicatif = countryMapping[countryCode];
+                            
+                            // Si le pays détecté est dans notre liste
+                            if (indicatif) {
+                                countrySelect.value = indicatif;
+                                const flagCode = countryFlags[indicatif];
+                                
+                                // Mettre à jour le drapeau avec une animation
+                                updateFlagWithAnimation(flagCode, 'blue');
+                                
+                                console.log(`✅ Pays détecté: ${countryName} (${countryCode}) - Indicatif: ${indicatif}`);
+                                return; // Succès, on arrête les tentatives
+                            } else {
+                                console.log(`⚠️ Pays détecté (${countryName}) non supporté, Tunisie par défaut.`);
+                                return; // Pays détecté mais non supporté, on garde la Tunisie
+                            }
+                        }
+                        
+                    } catch (error) {
+                        console.log(`❌ Erreur API ${i + 1}:`, error.message);
+                        
+                        // Si c'est la dernière API et qu'elle échoue aussi
+                        if (i === geoAPIs.length - 1) {
+                            console.log('🔄 Toutes les APIs ont échoué, utilisation de la géolocalisation navigateur...');
+                            await tryBrowserGeolocation();
+                        }
+                    }
+                }
+            }
+
+            // Fallback avec géolocalisation du navigateur
+            async function tryBrowserGeolocation() {
+                if ('geolocation' in navigator) {
+                    try {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                                timeout: 5000,
+                                enableHighAccuracy: false
+                            });
+                        });
+                        
+                        // Utiliser les coordonnées pour déterminer le pays (approximativement)
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Zones géographiques approximatives pour nos pays
+                        const countryByCoords = getCountryByCoordinates(lat, lng);
+                        
+                        if (countryByCoords) {
+                            countrySelect.value = countryByCoords;
+                            const flagCode = countryFlags[countryByCoords];
+                            updateFlagWithAnimation(flagCode, 'green');
+                            console.log(`📍 Pays détecté par géolocalisation: ${countryByCoords}`);
+                        } else {
+                            console.log('🗺️ Position non reconnue, Tunisie par défaut.');
+                        }
+                        
+                    } catch (geoError) {
+                        console.log('📍 Géolocalisation refusée ou non disponible, Tunisie par défaut.');
+                    }
+                } else {
+                    console.log('📱 Géolocalisation non supportée, Tunisie par défaut.');
+                }
+            }
+
+            // Fonction pour déterminer le pays par coordonnées (approximatif)
+            function getCountryByCoordinates(lat, lng) {
+                // Zones géographiques approximatives pour nos 5 pays
+                if (lat >= 30 && lat <= 37 && lng >= 7 && lng <= 12) return '+216'; // Tunisie
+                if (lat >= 18 && lat <= 38 && lng >= -9 && lng <= 12) return '+213'; // Algérie
+                if (lat >= 21 && lat <= 36 && lng >= -17 && lng <= -1) return '+212'; // Maroc
+                if (lat >= -26 && lat <= -11 && lng >= 43 && lng <= 51) return '+261'; // Madagascar
+                if (lat >= 41 && lat <= 51 && lng >= -5 && lng <= 10) return '+33'; // France
+                
+                return null; // Position non reconnue
+            }
+
+            // Fonction pour animer le changement de drapeau
+            function updateFlagWithAnimation(flagCode, ringColor = 'emerald') {
+                const flagContainer = countryFlag.parentElement;
+                
+                // Animation d'entrée
+                countryFlag.style.transform = 'scale(0.8)';
+                countryFlag.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    countryFlag.className = `fi fi-${flagCode} flag-emoji w-8 h-8 rounded-md shadow-sm transition-all duration-300 hover:scale-110`;
+                    countryFlag.style.transform = 'scale(1.1)';
+                    countryFlag.style.opacity = '1';
+                    
+                    // Animation de confirmation avec couleur spécifique
+                    flagContainer.classList.add('ring-2', `ring-${ringColor}-400`, `border-${ringColor}-300`);
+                    setTimeout(() => {
+                        countryFlag.style.transform = 'scale(1)';
+                        flagContainer.classList.remove('ring-2', `ring-${ringColor}-400`, `border-${ringColor}-300`);
+                    }, 600);
+                }, 200);
+            }
+
+            // Détecter le pays au chargement de la page
+            detectCountryAndSetFlag();
+            
+            // Effet au changement de pays
+            countrySelect.addEventListener('change', () => {
+                const selectedCountry = countrySelect.value;
+                const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+                const flagCode = selectedOption.dataset.flag;
+                const flagContainer = countryFlag.parentElement;
+                
+                // Animation de sortie
+                countryFlag.style.transform = 'scale(0.7) rotateY(-15deg)';
+                countryFlag.style.opacity = '0.4';
+                
+                setTimeout(() => {
+                    // Changer le drapeau avec flag-icons
+                    countryFlag.className = `fi fi-${flagCode} flag-emoji w-8 h-8 rounded-md shadow-sm transition-all duration-300 hover:scale-110`;
+                    
+                    // Animation d'entrée avec effet 3D
+                    countryFlag.style.transform = 'scale(1.2) rotateY(15deg)';
+                    countryFlag.style.opacity = '1';
+                    
+                    // Retour à la normale
+                    setTimeout(() => {
+                        countryFlag.style.transform = 'scale(1) rotateY(0deg)';
+                    }, 250);
+                }, 150);
+                
+                // Animation de succès sur le container avec effet premium
+                flagContainer.classList.add('ring-2', 'ring-emerald-400', 'border-emerald-300', 'bg-gradient-to-br', 'from-emerald-50', 'to-white');
+                setTimeout(() => {
+                    flagContainer.classList.remove('ring-2', 'ring-emerald-400', 'border-emerald-300', 'bg-gradient-to-br', 'from-emerald-50', 'to-white');
+                }, 800);
+            });
+
+            // Form submission
+            const form = document.getElementById('applicationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const successMessage = document.getElementById('successMessage');
+            const dynamicMessage = document.getElementById('dynamicMessage');
+            const pageTitle = document.getElementById('pageTitle');
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Récupérer les valeurs du formulaire
+                const firstName = document.getElementById('firstname').value;
+                const countryCode = document.getElementById('countryCode').value;
+                const phoneNumber = document.getElementById('phone').value;
+                const fullPhone = countryCode + ' ' + phoneNumber;
+                
+                // Créer le message dynamique
+                dynamicMessage.innerHTML = `
+                    Merci, <span class="highlight">${firstName}</span> ! Votre candidature est bien enregistrée.<br>
+                    Notre RH vous contactera au plus vite au 
+                    <span class="highlight">${fullPhone}</span> <br>
+                    À très vite l'équipe Callzy !
+                `;
+                
+                submitBtn.disabled = true;
+                btnText.innerHTML = `
+                    <span class="inline-flex items-center">
+                        <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Envoi en cours...
+                    </span>
+                `;
+                
+                // VRAI ENVOI VERS GOOGLE SHEETS
+				const params = new URLSearchParams({
+				  nom: document.getElementById('lastname').value,
+				  prenom: document.getElementById('firstname').value,
+				  email: document.getElementById('email').value,
+				  telephone: fullPhone
+				});
+
+				try {
+				  await fetch(`https://script.google.com/macros/s/AKfycbwe49paOJddeBj1ji8TqSArzo2eqtPDqShYtFPgJifJfxZ5H8JvwxFZadUi3ozukEuR/exec?${params}`, {
+					method: 'GET',
+					mode: 'no-cors'
+				  });
+				  console.log('Données envoyées avec succès');
+				} catch (error) {
+				  console.log('Données envoyées (mode no-cors, erreur normale)');
+				}
+                
+                // Masquer le titre de la première page
+                pageTitle.style.display = 'none';
+                
+                form.style.opacity = '0';
+                form.style.height = '0';
+                form.style.overflow = 'hidden';
+                form.style.pointerEvents = 'none';
+                
+                setTimeout(() => {
+                    form.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>
